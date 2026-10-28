@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Médongaule Brand Identity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300&display=swap">
+<style>
+/* the boards as they are: full width, at their own proportions, one straight after another */
+:root { color-scheme: dark; }
+html, body { margin: 0; background: #0E0F0A; }
+main { display: block; }
+.b { margin: 0; line-height: 0; position: relative; }
+/* from the business card on, one small title top-left, the same on every board */
+.lb { position: absolute; line-height: 1; font: 300 clamp(7px, .58vw, 10px)/1 "Jost", -apple-system, "Helvetica Neue", sans-serif;
+  letter-spacing: .28em; text-transform: uppercase; color: #BEBE8F; white-space: nowrap; pointer-events: none; }
+.b { --e: max(10px, 1.1vw); }
+.tl { top: var(--e); left: var(--e); }
+.back { position: fixed; top: calc(14px + env(safe-area-inset-top, 0px)); right: max(14px, env(safe-area-inset-right, 0px)); z-index: 2;
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; text-decoration: none;
+  color: #F2EBDB; background: rgba(14,15,10,.45); border: 1px solid rgba(242,235,219,.35); font: 18px/1 -apple-system, sans-serif; opacity: .6; transition: opacity .2s; }
+.back:hover, .back:focus-visible { opacity: 1; outline: none; }
+</style></head><body>
+<a class="back" href="index.html" aria-label="Back to the site">←</a>
+<main>
+  <section class="b"><img src="brand/ab1.svg" decoding="async" alt="Médongaule wordmark over a forest path lit by a shaft of light"></section>
+  <section class="b"><img src="brand/ab2.svg" loading="lazy" decoding="async" alt="Emblem and typographic lockup"></section>
+  <section class="b"><img src="brand/ab3.svg" loading="lazy" decoding="async" alt="The wordmark on Maple Orange"></section>
+  <section class="b"><img src="brand/ab4.svg" loading="lazy" decoding="async" alt="Custom leaf terminals of the wordmark"></section>
+  <section class="b"><img src="brand/ab5.svg" loading="lazy" decoding="async" alt="Brand typeface, The Seasons"></section>
+  <section class="b"><img src="brand/ab6.svg" loading="lazy" decoding="async" alt="Fati posters and the brand palette"></section>
+  <section class="b"><img src="brand/ab7.svg" loading="lazy" decoding="async" alt="Restaurant and Café"></section>
+  <section class="b"><img src="brand/ab8.svg" loading="lazy" decoding="async" alt="Business cards"><span class="lb tl">Business Card</span></section>
+  <section class="b"><img src="brand/ab9.svg" loading="lazy" decoding="async" alt="Menus"><span class="lb tl">Menu Design</span></section>
+  <section class="b"><img src="brand/ab10.svg" loading="lazy" decoding="async" alt="Chopstick sleeves"><span class="lb tl">Chopstick Hold</span></section>
+  <section class="b"><img src="brand/ab11.svg" loading="lazy" decoding="async" alt="Lattice patterns"><span class="lb tl">Graphic Elements</span></section>
+  <section class="b"><img src="brand/ab12.svg" loading="lazy" decoding="async" alt="Leaflet: Collects"><span class="lb tl">Digital Docent</span></section>
+  <section class="b"><img src="brand/ab13.svg" loading="lazy" decoding="async" alt="Leaflet: Digital"><span class="lb tl">Digital Docent</span></section>
+  <section class="b"><img src="brand/ab19.svg" loading="lazy" decoding="async" alt="The wordmark over the tiled roofs of the Korean garden"></section>
+</main>
+</body></html>
