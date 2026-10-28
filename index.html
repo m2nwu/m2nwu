@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2NWU Desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --page: #ded5cb;
+  --page-ink: #161616;
+  --page-muted: #6f6f6c;
+  --glass: rgba(255,255,255,.16);
+  --glass-line: rgba(255,255,255,.22);
+  --ui: rgba(255,255,255,.92);
+  --ui-dim: rgba(255,255,255,.6);
+  --ease: cubic-bezier(.2,.8,.2,1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--page); color: var(--page-ink); }
+body { font-family: Inter, system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+button, input { font: inherit; color: inherit; }
+
+/* ---------- page ---------- */
+.track { height: 460svh; }
+.stage {
+  position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden;
+  background: var(--page);
+}
+.page-mark, .page-hint {
+  position: fixed; z-index: 3; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--page-muted);
+}
+.page-mark { top: 22px; left: 24px; font-size: 11px; letter-spacing: .2em; color: var(--page-ink); opacity: .55; font-weight: 500; }
+.page-hint { bottom: 22px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; transition: opacity .5s; }
+.page-hint i { width: 1px; height: 22px; background: var(--page-ink); transform-origin: top; animation: drip 1.8s var(--ease) infinite; }
+@keyframes drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+
+/* the rendered desk scene, sized to cover the viewport */
+.laptop { position: absolute; left: 0; top: 0; width: var(--lw); height: var(--lh); transform: translate(var(--lx, 0px), var(--ly, 0px)); }
+.laptop > img { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; pointer-events: none; }
+
+/* ---------- the virtual display ---------- */
+.screen {
+  position: absolute; left: 0; top: 0; transform-origin: 0 0;
+  width: var(--vw); height: var(--vh); overflow: hidden; border-radius: 14px;
+  background: #020202; color: var(--ui); font-size: 13px;
+  user-select: none;
+}
+.screen .glare {
+  position: absolute; inset: 0; pointer-events: none; z-index: 50;
+  background:
+    linear-gradient(112deg, rgba(255,255,255,.075) 0%, rgba(255,255,255,.025) 26%, transparent 27%, transparent 58%, rgba(255,255,255,.035) 59%, transparent 74%),
+    linear-gradient(180deg, rgba(255,255,255,.035), transparent 22%);
+  box-shadow: inset 0 0 40px rgba(0,0,0,.55), inset 0 0 0 1px rgba(0,0,0,.6);
+}
+/* the panel itself: a faint pixel grid and backlight that lifts the black */
+.screen .pixels {
+  position: absolute; inset: 0; pointer-events: none; z-index: 49; opacity: .5;
+  background:
+    radial-gradient(80% 70% at 50% 50%, rgba(255,255,255,.018), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.35) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px);
+}
+/* light the display throws onto the keyboard deck */
+.spill {
+  position: absolute; pointer-events: none; mix-blend-mode: screen; opacity: var(--spill, .5);
+  background: radial-gradient(55% 100% at 50% 0%, rgba(235,235,240,.16), rgba(235,235,240,.04) 45%, transparent 75%);
+}
+.notch {
+  position: absolute; z-index: 60; top: 0; left: 50%; transform: translateX(-50%);
+  width: calc(var(--vw) * .087); height: 28px; background: #000;
+  border-radius: 0 0 9px 9px;
+}
+
+/* the logo film: screensaver first, then blurred down into the wallpaper */
+.film { position: absolute; inset: 0; will-change: filter, transform; }
+.film video { position: absolute; left: 50%; top: 50%; width: 38%; height: auto; aspect-ratio: 16 / 9; transform: translate(-50%, -50%); display: block; object-fit: contain; }
+.film::after { content: ""; position: absolute; inset: 0; opacity: var(--tint, 0);
+  background: radial-gradient(120% 80% at 50% -10%, rgba(120,120,126,.35), transparent 55%),
+              radial-gradient(100% 80% at 50% 50%, transparent 35%, rgba(0,0,0,.55) 100%); }
+
+/* desktop: plain black */
+.deskwall { position: absolute; inset: 0; opacity: 0; background: #000; }
+.avatar {
+  position: absolute; left: 50%; top: var(--av-y); width: var(--av); height: var(--av); margin-left: calc(var(--av) / -2);
+  border-radius: 50%; overflow: hidden; opacity: 0;
+  background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+.avatar img { width: 100%; height: 100%; display: block; }
+
+/* lock screen */
+.lock { position: absolute; inset: 0; pointer-events: none; }
+.lock.live { pointer-events: auto; }
+.clock { position: absolute; left: 0; right: 0; top: 8%; text-align: center; opacity: 0; }
+.clock .date { font-size: max(12px, calc(var(--vh) * .027)); font-weight: 500; color: var(--ui-dim); letter-spacing: .01em; }
+.clock .time { font-size: calc(var(--vh) * .12); font-weight: 600; letter-spacing: -.045em; line-height: 1.02; color: rgba(255,255,255,.86); font-variant-numeric: tabular-nums; }
+.who { position: absolute; left: 0; right: 0; top: calc(var(--av-y) + var(--av) + 12px); text-align: center; opacity: 0; }
+.who b { display: block; font-size: 15px; font-weight: 600; }
+.form { display: grid; gap: 8px; justify-items: center; margin-top: 16px; }
+.field { position: relative; width: 212px; height: 34px; }
+.field input {
+  width: 100%; height: 100%; border: 0; outline: 0; border-radius: 16px;
+  padding: 0 38px 0 14px; font-size: 14px; letter-spacing: .01em; color: #fff;
+  background: rgba(255,255,255,.22); box-shadow: inset 0 0 0 .5px var(--glass-line);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  caret-color: #fff;
+}
+.field input::placeholder { color: rgba(255,255,255,.5); }
+.field input:focus { box-shadow: inset 0 0 0 .5px var(--glass-line), 0 0 0 3px rgba(255,255,255,.12); }
+.field input[type=password] { letter-spacing: .28em; }
+.go {
+  position: absolute; right: 5px; top: 5px; width: 24px; height: 24px; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.2); display: grid; place-items: center; cursor: pointer;
+  opacity: .35; transition: opacity .25s, background .25s, transform .2s;
+}
+.go.ready { opacity: 1; }
+.go.press { transform: scale(.86); background: rgba(255,255,255,.45); }
+.go svg { width: 12px; height: 12px; }
+.hint { font-size: 11px; color: var(--ui-dim); height: 14px; margin-top: 4px; transition: opacity .3s; }
+.shake { animation: shake .42s; }
+@keyframes shake { 20%, 60% { transform: translateX(-9px); } 40%, 80% { transform: translateX(9px); } }
+.spin { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.25); border-top-color: #fff; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* desktop */
+.desk { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.unlocked .desk { pointer-events: auto; }
+.menubar {
+  position: absolute; top: 0; left: 0; right: 0; height: 28px; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 14px;
+  font-size: 13px; background: rgba(20,20,22,.28);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4);
+  transform: translateY(-100%);
+}
+.menubar .l, .menubar .r { display: flex; gap: 18px; align-items: center; }
+.menubar .l b { font-weight: 700; }
+.menubar .star { font-size: 18px; line-height: 1; margin-top: 4px; padding: 0 2px; cursor: pointer; background: none; border: 0; }
+.menubar .r svg { height: 13px; width: auto; display: block; opacity: .92; }
+.menubar .l span { opacity: .92; }
+.compact .menubar .l span:nth-of-type(n+4) { display: none; }
+.dropdown {
+  position: absolute; top: 30px; left: 8px; z-index: 30; min-width: 210px; padding: 5px;
+  border-radius: 10px; background: rgba(40,40,44,.62); box-shadow: 0 0 0 .5px rgba(255,255,255,.18), 0 12px 40px rgba(0,0,0,.4);
+  -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px);
+  opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity .15s, transform .15s;
+}
+.dropdown.open { opacity: 1; transform: none; pointer-events: auto; }
+.dropdown button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 13px; }
+.dropdown button:hover { background: rgba(255,255,255,.16); }
+.dropdown hr { border: 0; height: .5px; background: rgba(255,255,255,.18); margin: 5px 8px; }
+
+.icons { position: absolute; top: 54px; right: 30px; display: grid; gap: 22px; justify-items: center; z-index: 5; }
+.icon {
+  display: grid; justify-items: center; gap: 6px; width: 96px; cursor: pointer; border: 0; background: none;
+  text-decoration: none; color: var(--ui);
+  opacity: 0; transform: scale(.6);
+}
+.icon .art {
+  width: 64px; height: 64px; border-radius: 15px; position: relative; overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 0 0 .5px rgba(255,255,255,.28);
+  display: grid; place-items: center;
+  transition: transform .2s var(--ease);
+}
+.icon .art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.14), transparent 46%); }
+.icon .art { background: #0b0b0c; filter: brightness(.92); transition: transform .2s var(--ease), filter .25s; }
+.icon .art svg { position: relative; z-index: 0; display: block; }
+.icon .art .logo-lumix { width: 46px; height: auto; }
+.icon .art .logo-medongaule { width: 54px; height: auto; position: relative; display: block; }
+.icon .art .logo-full { position: absolute; inset: 0; width: 100%; height: 100%; }
+.icon:hover .art, .icon.sel .art { filter: brightness(1.25); }
+.icon .label { font-size: 12px; line-height: 1.25; text-align: center; padding: 1px 6px; border-radius: 4px; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+.icon:hover .art { transform: translateY(-2px); }
+.icon:focus-visible { outline: none; }
+.icon.sel .label, .icon:focus-visible .label { background: rgba(255,255,255,.2); text-shadow: none; }
+.icon.sel .art, .icon:focus-visible .art { box-shadow: 0 6px 18px rgba(0,0,0,.45), 0 0 0 3px rgba(255,255,255,.28); }
+
+.dock {
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%) translateY(var(--dock-y, 120%)); z-index: 8;
+  display: flex; align-items: flex-end; gap: 5px; padding: 5px 6px; border-radius: 16px;
+  background: rgba(60,60,64,.32); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.2), 0 10px 30px rgba(0,0,0,.35);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5); backdrop-filter: blur(24px) saturate(1.5);
+}
+.dock-app { width: 44px; height: 44px; border: 0; padding: 0; background: none; cursor: pointer;
+  transition: transform .18s var(--ease); transform-origin: 50% 100%; }
+.dock-app svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+.dock-app:hover { transform: scale(1.22) translateY(-3px); }
+.dock-app.bounce { animation: bounce .9s var(--ease); }
+@keyframes bounce { 0%, 100% { transform: none; } 30% { transform: translateY(-16px); } 60% { transform: translateY(0); } 75% { transform: translateY(-6px); } }
+.dock .sep { width: .5px; align-self: stretch; margin: 4px 3px; background: rgba(255,255,255,.3); }
+.compact .dock-app { width: 30px; height: 30px; }
+.compact .dock { gap: 3px; padding: 4px; border-radius: 11px; }
+.win {
+  position: absolute; left: 7%; top: 9%; width: 72%; height: 78%; z-index: 10;
+  border-radius: 11px; overflow: hidden; background: #1c1c1e;
+  box-shadow: 0 0 0 .5px rgba(255,255,255,.18), 0 30px 80px rgba(0,0,0,.55);
+  display: grid; grid-template-rows: 40px 1fr;
+  opacity: 0; pointer-events: none;
+}
+.win.open { pointer-events: auto; }
+.win .bar { display: flex; align-items: center; gap: 14px; padding: 0 14px; background: #2a2a2d; border-bottom: .5px solid rgba(255,255,255,.08); }
+.win .lights { display: flex; gap: 7px; }
+.win .lights i { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(180deg, #5a5a5e, #36363a); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.25); position: relative; }
+.win .lights i:first-child { cursor: pointer; }
+.win .lights i:first-child::after { content: "×"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 11px; line-height: 1; color: rgba(255,255,255,.75); opacity: 0; transition: opacity .15s; }
+.win .lights:hover i:first-child::after { opacity: 1; }
+.win .url { flex: 1; max-width: 360px; margin: 0 auto; height: 24px; border-radius: 6px; background: rgba(255,255,255,.08); display: grid; place-items: center; font-size: 12px; color: var(--ui-dim); }
+.win .body { display: grid; place-content: center; text-align: center; gap: 10px; padding: 24px; }
+.win .body h2 { font-size: 46px; font-weight: 600; letter-spacing: -.04em; }
+.win .body p { color: var(--ui-dim); font-size: 13px; }
+.win .body a { color: #fff; font-size: 13px; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.4); justify-self: center; }
+
+/* about window */
+.about { width: 340px; height: auto; left: calc(50% - 170px); top: 16%; grid-template-rows: 32px auto; }
+.about .body { padding: 22px 26px 26px; gap: 6px; }
+.about .body h2 { font-size: 22px; letter-spacing: -.02em; }
+.about-face { width: 64px; height: 64px; border-radius: 50%; justify-self: center; margin-bottom: 6px; }
+.about dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; text-align: left; font-size: 12px; margin-top: 10px; }
+.about dt { color: var(--ui-dim); text-align: right; }
+.about dd a { color: inherit; text-decoration: none; }
+.about .roles { line-height: 1.45; color: var(--ui-dim); }
+.tools { list-style: none; display: flex; justify-content: center; gap: 16px; margin-top: 16px; padding-top: 14px; border-top: .5px solid rgba(255,255,255,.12); }
+.tools li { display: grid; justify-items: center; gap: 5px; }
+.tools svg { width: 20px; height: 20px; fill: rgba(255,255,255,.82); }
+.tools span { font-size: 9px; color: var(--ui-dim); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) { .page-hint i { animation: none; } }
+</style>
+</head>
+<body>
+<div class="track" id="track"></div>
+
+<div class="stage">
+  <div class="page-mark">M2NWU</div>
+  <div class="page-hint" id="hint"><i></i>Scroll to wake</div>
+
+  <div class="laptop" id="laptop">
+    <img src="media/macbook.webp" alt="MacBook Pro 16-inch, Space Black" id="shell">
+
+    <div class="spill" id="spill"></div>
+    <div class="screen" id="screen">
+      <div class="film" id="film"><video id="video" data-src="media/M2NWUID.mp4" muted playsinline loop preload="auto"></video></div>
+      <div class="deskwall" id="deskwall"></div>
+      <div class="avatar" id="avatar"><img src="media/avatar.svg" alt=""></div>
+
+      <div class="lock" id="lock">
+        <div class="clock" id="clock"><div class="date" id="lockDate">Wednesday, October 28</div><div class="time" id="lockTime">9:41</div></div>
+        <form class="who" id="who" autocomplete="off">
+          <b>Minwoo Hong</b>
+          <div class="form">
+            <div class="field"><input id="uid" name="uid" placeholder="User ID" spellcheck="false" autocapitalize="off" aria-label="User ID"></div>
+            <div class="field"><input id="pw" name="pw" type="password" placeholder="Password" aria-label="Password">
+              <button class="go" id="go" type="submit" aria-label="Log in"><svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h8M6.5 2.5 10 6 6.5 9.5"/></svg></button></div>
+            <div class="hint" id="loginHint">&nbsp;</div>
+          </div>
+        </form>
+      </div>
+
+      <div class="desk" id="desk">
+        <div class="menubar" id="menubar">
+          <div class="l"><button class="star" id="starBtn" aria-label="Menu">*</button><b>Finder</b><span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span><span>Help</span></div>
+          <div class="r">
+            <svg viewBox="0 0 26 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="15" height="9" rx="2" fill="currentColor"/><rect x="23.5" y="4.5" width="1.6" height="4" rx=".8" fill="currentColor" opacity=".5"/></svg>
+            <svg viewBox="0 0 16 13"><path d="M8 11.6 10.2 9a3.2 3.2 0 0 0-4.4 0zM3.6 6.9l1.4 1.5a4.4 4.4 0 0 1 6 0l1.4-1.5a6.4 6.4 0 0 0-8.8 0zM1 4.2l1.4 1.5a8.2 8.2 0 0 1 11.2 0L15 4.2a10.2 10.2 0 0 0-14 0z" fill="currentColor"/></svg>
+            <span id="barTime">Wed Oct 28  9:41 PM</span>
+          </div>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <button data-act="about">About This Mac</button>
+          <hr>
+          <button data-act="lock">Lock Screen</button>
+        </div>
+
+        <div class="icons" id="icons"></div>
+
+        <div class="dock" id="dock">
+          <button class="dock-app" title="Finder" aria-label="Finder"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="url(#gFinder)"/><defs><linearGradient id="gFinder" x1="0" x2="1"><stop offset=".5" stop-color="#8fd3ff"/><stop offset=".5" stop-color="#1f74e8"/></linearGradient></defs><path d="M30 8c-3 10-4 20-2 30h6" fill="none" stroke="#0b2c5c" stroke-width="2.5" stroke-linecap="round"/><path d="M20 22v6M44 22v6" stroke="#0b2c5c" stroke-width="3" stroke-linecap="round"/><path d="M18 44c8 6 20 6 28 0" fill="none" stroke="#0b2c5c" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+          <button class="dock-app" title="Safari" aria-label="Safari"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#f4f6f8"/><circle cx="32" cy="32" r="22" fill="url(#gSaf)"/><defs><linearGradient id="gSaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fc3ff"/><stop offset="1" stop-color="#1a64e0"/></linearGradient></defs><path d="M32 32 44 20 36 36Z" fill="#ff3b30"/><path d="M32 32 20 44 28 28Z" fill="#fff"/></svg></button>
+          <button class="dock-app" title="Mail" aria-label="Mail"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="url(#gMail)"/><defs><linearGradient id="gMail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ac8fa"/><stop offset="1" stop-color="#1a7cf5"/></linearGradient></defs><rect x="13" y="20" width="38" height="25" rx="3" fill="#fff"/><path d="M14 22 32 35 50 22" fill="none" stroke="#1a7cf5" stroke-width="2.4"/></svg></button>
+          <button class="dock-app" title="Photos" aria-label="Photos"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#fff"/><ellipse cx="32" cy="20" rx="6.5" ry="11" fill="#ff9500" opacity=".85" transform="rotate(0 32 32)"/><ellipse cx="32" cy="20" rx="6.5" ry="11" fill="#ffcc00" opacity=".85" transform="rotate(45 32 32)"/><ellipse cx="32" cy="20" rx="6.5" ry="11" fill="#a4d65e" opacity=".85" transform="rotate(90 32 32)"/><ellipse cx="32" cy="20" rx="6.5" ry="11" fill="#34c759" opacity=".85" transform="rotate(135 32 32)"/><ellipse cx="32" cy="20" rx="6.5" ry="11" fill="#30b0c7" opacity=".85" transform="rotate(180 32 32)"/><ellipse cx="32" cy="20" rx="6.5" ry="11" fill="#5856d6" opacity=".85" transform="rotate(225 32 32)"/><ellipse cx="32" cy="20" rx="6.5" ry="11" fill="#af52de" opacity=".85" transform="rotate(270 32 32)"/><ellipse cx="32" cy="20" rx="6.5" ry="11" fill="#ff2d55" opacity=".85" transform="rotate(315 32 32)"/></svg></button>
+          <button class="dock-app" title="Settings" aria-label="Settings"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#8e8e93"/><circle cx="32" cy="32" r="16" fill="none" stroke="#e5e5ea" stroke-width="7" stroke-dasharray="5 3.4"/><circle cx="32" cy="32" r="9" fill="none" stroke="#e5e5ea" stroke-width="3"/></svg></button>
+          <i class="sep"></i>
+          <button class="dock-app" title="Photoshop" aria-label="Photoshop"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#001e36"/><rect x="3" y="3" width="58" height="58" rx="11" fill="none" stroke="#31a8ff" stroke-width="2.5"/><text x="32" y="42" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600" font-size="26" fill="#31a8ff">Ps</text></svg></button>
+          <button class="dock-app" title="Illustrator" aria-label="Illustrator"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#330000"/><rect x="3" y="3" width="58" height="58" rx="11" fill="none" stroke="#ff9a00" stroke-width="2.5"/><text x="32" y="42" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600" font-size="26" fill="#ff9a00">Ai</text></svg></button>
+          <button class="dock-app" title="After Effects" aria-label="After Effects"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#00005b"/><rect x="3" y="3" width="58" height="58" rx="11" fill="none" stroke="#9999ff" stroke-width="2.5"/><text x="32" y="42" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600" font-size="26" fill="#9999ff">Ae</text></svg></button>
+          <button class="dock-app" title="Blender" aria-label="Blender"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1d1d1f"/><g transform="translate(14 14) scale(1.5)"><path fill="#e87d0d" d="M12.51 13.214c.046-.8.438-1.506 1.03-2.006a3.424 3.424 0 0 1 2.212-.79c.85 0 1.631.3 2.211.79.592.5.983 1.206 1.028 2.005.045.823-.285 1.586-.865 2.153a3.389 3.389 0 0 1-2.374.938 3.393 3.393 0 0 1-2.376-.938c-.58-.567-.91-1.33-.865-2.152M7.35 14.831c.006.314.106.922.256 1.398a7.372 7.372 0 0 0 1.593 2.757 8.227 8.227 0 0 0 2.787 2.001 8.947 8.947 0 0 0 3.66.76 8.964 8.964 0 0 0 3.657-.772 8.285 8.285 0 0 0 2.785-2.01 7.428 7.428 0 0 0 1.592-2.762 6.964 6.964 0 0 0 .25-3.074 7.123 7.123 0 0 0-1.016-2.779 7.764 7.764 0 0 0-1.852-2.043h.002L13.566 2.55l-.02-.015c-.492-.378-1.319-.376-1.86.002-.547.382-.609 1.015-.123 1.415l-.001.001 3.126 2.543-9.53.01h-.013c-.788.001-1.545.518-1.695 1.172-.154.665.38 1.217 1.2 1.22V8.9l4.83-.01-8.62 6.617-.034.025c-.813.622-1.075 1.658-.563 2.313.52.667 1.625.668 2.447.004L7.414 14s-.069.52-.063.831zm12.09 1.741c-.97.988-2.326 1.548-3.795 1.55-1.47.004-2.827-.552-3.797-1.538a4.51 4.51 0 0 1-1.036-1.622 4.282 4.282 0 0 1 .282-3.519 4.702 4.702 0 0 1 1.153-1.371c.942-.768 2.141-1.183 3.396-1.185 1.256-.002 2.455.41 3.398 1.175.48.391.87.854 1.152 1.367a4.28 4.28 0 0 1 .522 1.706 4.236 4.236 0 0 1-.239 1.811 4.54 4.54 0 0 1-1.035 1.626"/></g></svg></button>
+          <button class="dock-app" title="Claude" aria-label="Claude"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#f5f3ec"/><g transform="translate(14 14) scale(1.5)"><path fill="#d97757" d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></g></svg></button>
+          <i class="sep"></i>
+          <button class="dock-app" title="Trash" aria-label="Trash"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="transparent"/><path d="M18 18h28l-3 34a3 3 0 0 1-3 3H24a3 3 0 0 1-3-3Z" fill="rgba(255,255,255,.55)" stroke="rgba(255,255,255,.85)" stroke-width="1.5"/><path d="M26 24v24M32 24v24M38 24v24" stroke="rgba(0,0,0,.18)" stroke-width="1.5"/></svg></button>
+        </div>
+
+        <div class="win" id="win" role="dialog" aria-label="Site">
+          <div class="bar"><div class="lights"><i data-close></i><i></i><i></i></div><div class="url" id="winUrl"></div></div>
+          <div class="body"><h2 id="winTitle"></h2><p id="winText"></p><a id="winLink" target="_blank" rel="noopener" hidden>Open site ↗</a></div>
+        </div>
+
+        <div class="win about" id="about" role="dialog" aria-label="About">
+          <div class="bar"><div class="lights"><i data-close></i><i></i><i></i></div></div>
+          <div class="body">
+            <img class="about-face" src="media/avatar.svg" alt="">
+            <h2>Minwoo Hong</h2>
+            <p class="roles">Brand Designer<br>3D Creative<br>Interaction Designer</p>
+            <dl>
+              <dt>Machine</dt><dd>MacBook Pro 16″, M3 Max</dd>
+              <dt>Mail</dt><dd><a href="mailto:from2nwu@gmail.com">from2nwu@gmail.com</a></dd>
+              <dt>Instagram</dt><dd><a href="https://www.instagram.com/m2nwu" target="_blank" rel="noopener">@m2nwu</a></dd>
+            </dl>
+            <ul class="tools" aria-label="Tools">
+              <li title="Photoshop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.85 8.42c-.37-.15-.77-.21-1.18-.2-.26 0-.49 0-.68.01-.2-.01-.34 0-.41.01v3.36c.14.01.27.02.39.02h.53c.39 0 .78-.06 1.15-.18.32-.09.6-.28.82-.53.21-.25.31-.59.31-1.03.01-.31-.07-.62-.23-.89-.17-.26-.41-.46-.7-.57zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.899c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.391 11.65c-.399.56-.959.98-1.609 1.22-.68.25-1.43.34-2.25.34-.24 0-.4 0-.5-.01s-.24-.01-.43-.01v3.209c.01.07-.04.131-.11.141H5.52c-.08 0-.12-.041-.12-.131V6.42c0-.07.03-.11.1-.11.17 0 .33 0 .56-.01.24-.01.49-.01.76-.02s.56-.01.87-.02c.31-.01.61-.01.91-.01.82 0 1.5.1 2.06.31.5.17.96.45 1.34.82.32.32.57.71.73 1.14.149.42.229.85.229 1.3.001.86-.199 1.57-.6 2.13zm7.091 3.89c-.28.4-.671.709-1.12.891-.49.209-1.09.318-1.811.318-.459 0-.91-.039-1.359-.129-.35-.061-.7-.17-1.02-.32-.07-.039-.121-.109-.111-.189v-1.74c0-.029.011-.07.041-.09.029-.02.06-.01.09.01.39.23.8.391 1.24.49.379.1.779.15 1.18.15.38 0 .65-.051.83-.141.16-.07.27-.24.27-.42 0-.141-.08-.27-.24-.4-.16-.129-.489-.279-.979-.471-.51-.18-.979-.42-1.42-.719-.31-.221-.569-.51-.761-.85-.159-.32-.239-.67-.229-1.021 0-.43.12-.84.341-1.21.25-.4.619-.72 1.049-.92.469-.239 1.059-.349 1.769-.349.41 0 .83.03 1.24.09.3.04.59.12.86.23.039.01.08.05.1.09.01.04.02.08.02.12v1.63c0 .04-.02.08-.05.1-.09.02-.14.02-.18 0-.3-.16-.62-.27-.96-.34-.37-.08-.74-.13-1.12-.13-.2-.01-.41.02-.601.07-.129.03-.24.1-.31.2-.05.08-.08.18-.08.27s.04.18.101.26c.09.11.209.2.34.27.229.12.47.23.709.33.541.18 1.061.43 1.541.73.33.209.6.49.789.83.16.318.24.67.23 1.029.011.471-.129.94-.389 1.331z"/></svg><span>Photoshop</span></li>
+              <li title="Illustrator"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.53 10.73c-.1-.31-.19-.61-.29-.92-.1-.31-.19-.6-.27-.89-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.14.51-.29.98-.44 1.4h2.54c-.06-.211-.14-.46-.23-.721-.09-.269-.18-.559-.27-.859zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zM14.7 16.83h-2.091c-.069.01-.139-.04-.159-.11l-.82-2.38H7.91l-.76 2.35c-.02.09-.1.15-.19.141H5.08c-.11 0-.14-.061-.11-.18L8.19 7.38c.03-.1.06-.21.1-.33.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.08 0 .12.03.13.08l3.65 10.3c.03.109 0 .16-.1.16zm3.4-.15c0 .11-.039.16-.129.16H16.01c-.1 0-.15-.061-.15-.16v-7.7c0-.1.041-.14.131-.14h1.98c.09 0 .129.05.129.14v7.7zm-.209-9.03c-.231.24-.571.37-.911.35-.33.01-.65-.12-.891-.35-.23-.25-.35-.58-.34-.92-.01-.34.12-.66.359-.89.242-.23.562-.35.892-.35.391 0 .689.12.91.35.22.24.34.56.33.89.01.34-.11.67-.349.92z"/></svg><span>Illustrator</span></li>
+              <li title="After Effects"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.54 10.73c-.1-.31-.19-.61-.29-.92s-.19-.6-.27-.89c-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.13.51-.29.98-.44 1.4h2.54c-.06-.21-.14-.46-.23-.72-.09-.27-.18-.56-.27-.86zm8.58-.29c-.55-.03-1.07.26-1.33.76-.12.23-.19.47-.22.72h2.109c.26 0 .45 0 .57-.01.08-.01.16-.03.23-.08v-.1c0-.13-.021-.25-.061-.37-.178-.56-.708-.94-1.298-.92zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.04 16.511h-2.09c-.07.01-.14-.041-.16-.11l-.82-2.4H5.92l-.76 2.36c-.02.09-.1.15-.19.14H3.09c-.11 0-.14-.06-.11-.18L6.2 7.39c.03-.1.06-.19.1-.31.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.07 0 .12.03.13.08l3.65 10.25c.03.11.001.161-.1.161zm7.851-3.991c-.021.189-.031.33-.041.42-.01.07-.069.13-.14.13-.06 0-.17.01-.33.021-.159.02-.35.029-.579.029-.23 0-.471-.04-.73-.04h-3.17c.039.31.14.62.31.89.181.271.431.48.729.601.4.17.841.26 1.281.25.35-.011.699-.04 1.039-.11.311-.039.61-.119.891-.23.05-.039.08-.02.08.08v1.531c0 .039-.01.08-.021.119-.021.03-.04.051-.069.07-.32.14-.65.24-1 .3-.471.09-.94.13-1.42.12-.761 0-1.4-.12-1.92-.35-.49-.211-.921-.541-1.261-.95-.319-.39-.55-.83-.69-1.31-.14-.471-.209-.961-.209-1.461 0-.539.08-1.07.25-1.59.16-.5.41-.96.75-1.37.33-.4.739-.72 1.209-.95.471-.23 1.03-.31 1.67-.31.531-.01 1.06.09 1.55.31.41.18.77.45 1.05.8.26.34.47.72.601 1.14.129.4.189.81.189 1.22 0 .24-.01.45-.019.64z"/></svg><span>After Effects</span></li>
+              <li title="Blender"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.51 13.214c.046-.8.438-1.506 1.03-2.006a3.424 3.424 0 0 1 2.212-.79c.85 0 1.631.3 2.211.79.592.5.983 1.206 1.028 2.005.045.823-.285 1.586-.865 2.153a3.389 3.389 0 0 1-2.374.938 3.393 3.393 0 0 1-2.376-.938c-.58-.567-.91-1.33-.865-2.152M7.35 14.831c.006.314.106.922.256 1.398a7.372 7.372 0 0 0 1.593 2.757 8.227 8.227 0 0 0 2.787 2.001 8.947 8.947 0 0 0 3.66.76 8.964 8.964 0 0 0 3.657-.772 8.285 8.285 0 0 0 2.785-2.01 7.428 7.428 0 0 0 1.592-2.762 6.964 6.964 0 0 0 .25-3.074 7.123 7.123 0 0 0-1.016-2.779 7.764 7.764 0 0 0-1.852-2.043h.002L13.566 2.55l-.02-.015c-.492-.378-1.319-.376-1.86.002-.547.382-.609 1.015-.123 1.415l-.001.001 3.126 2.543-9.53.01h-.013c-.788.001-1.545.518-1.695 1.172-.154.665.38 1.217 1.2 1.22V8.9l4.83-.01-8.62 6.617-.034.025c-.813.622-1.075 1.658-.563 2.313.52.667 1.625.668 2.447.004L7.414 14s-.069.52-.063.831zm12.09 1.741c-.97.988-2.326 1.548-3.795 1.55-1.47.004-2.827-.552-3.797-1.538a4.51 4.51 0 0 1-1.036-1.622 4.282 4.282 0 0 1 .282-3.519 4.702 4.702 0 0 1 1.153-1.371c.942-.768 2.141-1.183 3.396-1.185 1.256-.002 2.455.41 3.398 1.175.48.391.87.854 1.152 1.367a4.28 4.28 0 0 1 .522 1.706 4.236 4.236 0 0 1-.239 1.811 4.54 4.54 0 0 1-1.035 1.626"/></svg><span>Blender</span></li>
+              <li title="Claude"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span>Claude</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="notch"></div>
+      <div class="pixels"></div>
+      <div class="glare"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// The three sites on the desktop. Fill in url when each one is live.
+const SITES = [
+  { name: "LUMIX+", tile: "#fff", icon: '<svg viewBox="20 216 3088 649" class="logo-lumix"><path fill="#111" d="M227 651V216H20V850H409V651Z M727 216V593C727 621 704 644 676 644C648 644 626 621 626 593V216H419V608C419 750 534 865 676 865C818 865 934 750 934 608V216Z M1784 216C1604 216 1457 300 1408 445C1359 300 1212 216 1032 216H968V850H1175V464C1279 519 1322 659 1322 850H1494C1494 659 1537 519 1641 464V850H1848V216Z M1889 850H2096V216H1889Z M2698 216H2476L2408 464H2404L2336 216H2114L2212 533L2114 850H2336L2404 602H2408L2476 850H2698L2601 533Z M2985 473V350H2832V473H2708V626H2832V750H2985V626H3108V473Z"/></svg>', url: "https://claude.ai/artifact/BzdeTZJVPmht5X1PEaEQfe" },
+  { name: "MEDONGAULE", tile: "#cc2f0a", icon: '<img src="media/medongaule.svg" alt="" class="logo-medongaule">', url: "https://claude.ai/artifact/QK9midJN5oqGMwhNbscfcE" },
+  { name: "WORKSHOP", icon: '<svg viewBox="0 0 64 64" class="logo-full"><rect width="64" height="64" fill="#110e0c"/><path d="M32 10l9 11-9 12-9-12z" fill="#d8343a"/><path d="M18 30l9 11-9 12-9-12z" fill="#2f6fd6"/><path d="M46 30l9 11-9 12-9-12z" fill="#8a3fd1"/></svg>', url: "https://workshop-game.conceptrotation.workers.dev/" },
+];
+const LOGIN = { id: "mhong11", pw: "1234" };
+
+const $ = s => document.querySelector(s);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const span = (p, a, b) => clamp((p - a) / (b - a), 0, 1);
+const ease = t => 1 - Math.pow(1 - t, 3);
+const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const lerp = (a, b, t) => a + (b - a) * t;
+
+const laptop = $("#laptop"), shell = $("#shell"), screen = $("#screen");
+const film = $("#film"), video = $("#video"), avatar = $("#avatar");
+const clock = $("#clock"), who = $("#who"), uid = $("#uid"), pw = $("#pw"), go = $("#go"), hint = $("#loginHint");
+const desk = $("#desk"), menubar = $("#menubar"), icons = $("#icons");
+
+// ---------- screen geometry ----------
+let CORNERS = null;
+let V = { w: 1024, h: 662 };
+// Projective map from the unit square onto the quad (tl, tr, br, bl).
+function quad(w, h, [x0, y0], [x1, y1], [x2, y2], [x3, y3]) {
+  const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3;
+  const dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+  const den = dx1 * dy2 - dx2 * dy1;
+  const g = (dx3 * dy2 - dx2 * dy3) / den, hh = (dx1 * dy3 - dx3 * dy1) / den;
+  const a = x1 - x0 + g * x1, b = x3 - x0 + hh * x3, d = y1 - y0 + g * y1, e = y3 - y0 + hh * y3;
+  return `matrix3d(${a / w},${d / w},0,${g / w},${b / h},${e / h},0,${hh / h},0,0,1,0,${x0},${y0},0,1)`;
+}
+function layout() {
+  if (!CORNERS) return;
+  const [iw, ih] = CORNERS.image;
+  const sw = (CORNERS.tr[0] - CORNERS.tl[0]) / iw;      // screen width as share of the image
+  const vw = innerWidth, vh = innerHeight;
+  const portrait = vw < 720 && vh > vw;
+  // The scene covers the viewport. Phones push in until the display fills the width.
+  let k = Math.max(vw / iw, vh / ih);
+  if (portrait) k = Math.max(k, (vw - 16) / (sw * iw));
+  const lw = iw * k, lh = ih * k;
+  laptop.style.setProperty("--lw", lw + "px");
+  laptop.style.setProperty("--lh", lh + "px");
+  const shownW = (CORNERS.tr[0] - CORNERS.tl[0]) * k;
+  V.w = Math.round(clamp(shownW / .78, 600, 1024));
+  V.h = Math.round(V.w * 2234 / 3456);
+  screen.style.setProperty("--vw", V.w + "px");
+  screen.style.setProperty("--vh", V.h + "px");
+  screen.classList.toggle("compact", V.w < 760);
+  const pt = c => [c[0] * k, c[1] * k];
+  screen.style.transform = quad(V.w, V.h, pt(CORNERS.tl), pt(CORNERS.tr), pt(CORNERS.br), pt(CORNERS.bl));
+  const spill = $("#spill");
+  const sx = CORNERS.bl[0] * k, sy = CORNERS.bl[1] * k, sw2 = (CORNERS.br[0] - CORNERS.bl[0]) * k;
+  Object.assign(spill.style, { left: sx + "px", top: sy + "px", width: sw2 + "px", height: sw2 * .32 + "px" });
+  // Centre horizontally; on phones put the display a little above centre.
+  const cy = (CORNERS.tl[1] + CORNERS.bl[1]) / 2 * k;
+  const y = portrait ? clamp(vh * .44 - cy, vh - lh, 0) : (vh - lh) / 2;
+  laptop.style.setProperty("--lx", (vw - lw) / 2 + "px");
+  laptop.style.setProperty("--ly", y + "px");
+}
+fetch("media/screen.json").then(r => r.json()).then(j => { CORNERS = j; layout(); });
+addEventListener("resize", layout);
+
+// ---------- video ----------
+fetch(video.dataset.src).then(r => r.ok ? r.blob() : Promise.reject()).then(b => URL.createObjectURL(b))
+  .catch(() => video.dataset.src)
+  .then(src => { video.src = src; video.play().catch(() => {}); });
+
+// ---------- clock (Seoul) ----------
+function tick() {
+  const now = new Date();
+  const opt = { timeZone: "Asia/Seoul" };
+  $("#lockDate").textContent = now.toLocaleDateString("en-US", { ...opt, weekday: "long", month: "long", day: "numeric" });
+  $("#lockTime").textContent = now.toLocaleTimeString("en-US", { ...opt, hour: "numeric", minute: "2-digit", hour12: true }).replace(/\s?[AP]M/, "");
+  const d = now.toLocaleDateString("en-US", { ...opt, weekday: "short", month: "short", day: "numeric" }).replace(",", "");
+  $("#barTime").textContent = d + "  " + now.toLocaleTimeString("en-US", { ...opt, hour: "numeric", minute: "2-digit" });
+}
+tick(); setInterval(tick, 10000);
+
+// ---------- desktop icons ----------
+SITES.forEach((s, i) => {
+  const a = document.createElement(s.url ? "a" : "button");
+  a.className = "icon";
+  if (s.url) { a.href = s.url; a.target = "_blank"; a.rel = "noopener"; }
+  a.innerHTML = `<div class="art"${s.tile ? ` style="background:${s.tile}"` : ""}>${s.icon}</div><span class="label">${s.name}</span>`;
+  a.addEventListener("click", e => { openSite(i, a); });
+  icons.appendChild(a);
+});
+const win = $("#win"), about = $("#about");
+document.querySelectorAll(".dock-app").forEach(b => b.addEventListener("click", () => {
+  b.classList.remove("bounce"); void b.offsetWidth; b.classList.add("bounce");
+}));
+function popWindow(el, fromEl) {
+  const sr = screen.getBoundingClientRect();
+  // origin in the window's own space: from the icon if there is one, else centre
+  let ox = "50%", oy = "50%";
+  if (fromEl) {
+    const s = V.w / sr.width;
+    const ir = fromEl.getBoundingClientRect();
+    const wl = el.offsetLeft, wt = el.offsetTop;
+    ox = ((ir.left + ir.width / 2 - sr.left) * s - wl) + "px";
+    oy = ((ir.top + ir.height / 2 - sr.top) * s - wt) + "px";
+  }
+  el.style.transformOrigin = `${ox} ${oy}`;
+  el.classList.add("open");
+  screen.classList.add("winopen");
+  el.animate([{ opacity: 0, transform: "scale(.12)" }, { opacity: 1, transform: "scale(1)" }],
+    { duration: 520, easing: "cubic-bezier(.2,.9,.2,1)", fill: "forwards" });
+}
+function closeWindow(el) {
+  if (!el.classList.contains("open")) return;
+  el.classList.remove("open");
+  if (!document.querySelector(".win.open")) screen.classList.remove("winopen");
+  el.animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(.12)" }],
+    { duration: 320, easing: "cubic-bezier(.5,0,.8,.4)", fill: "forwards" });
+}
+function openSite(i, el) {
+  const s = SITES[i];
+  [...icons.children].forEach(c => c.classList.toggle("sel", c === el));
+  $("#winUrl").textContent = s.url ? s.url.replace(/^https?:\/\//, "") : s.name.toLowerCase().replace(" ", "-") + ".m2nwu";
+  $("#winTitle").textContent = s.name;
+  $("#winText").textContent = s.url ? "Opening in a new tab." : "In progress. This site is still being built.";
+  const link = $("#winLink");
+  link.hidden = !s.url; if (s.url) link.href = s.url;
+  closeWindow(about);
+  popWindow(win, el);
+}
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", e => closeWindow(e.target.closest(".win"))));
+addEventListener("keydown", e => { if (e.key === "Escape") { closeWindow(win); closeWindow(about); } });
+const dropdown = $("#dropdown");
+$("#starBtn").addEventListener("click", e => { e.stopPropagation(); dropdown.classList.toggle("open"); });
+document.addEventListener("click", () => dropdown.classList.remove("open"));
+dropdown.addEventListener("click", e => {
+  const act = e.target.dataset.act;
+  dropdown.classList.remove("open");
+  if (act === "about") { closeWindow(win); popWindow(about); }
+  if (act === "lock") lockScreen();
+});
+desk.addEventListener("click", e => {
+  if (e.target === desk || e.target === icons) [...icons.children].forEach(c => c.classList.remove("sel"));
+});
+
+// ---------- scroll story ----------
+// 0 → .12 screensaver · .12 → .40 wake (film becomes the avatar) ·
+// .44 → .62 type ID · .64 → .78 type password · .82 press return · ≥ .9 unlocked
+const track = $("#track");
+let p = 0, ps = 0, manual = false, unlocked = false, unlockT = 0, busy = false;
+function progress() {
+  const max = track.offsetHeight - innerHeight;
+  return max > 0 ? clamp(scrollY / max, 0, 1) : 0;
+}
+
+uid.addEventListener("keydown", () => manual = true);
+pw.addEventListener("keydown", () => manual = true);
+who.addEventListener("submit", e => {
+  e.preventDefault();
+  if (uid.value.trim() === LOGIN.id && pw.value === LOGIN.pw) {
+    unlock();
+    scrollTo({ top: track.offsetHeight - innerHeight, behavior: "smooth" });
+  } else {
+    who.querySelector(".form").classList.remove("shake");
+    void who.offsetWidth;
+    who.querySelector(".form").classList.add("shake");
+    hint.textContent = "Incorrect ID or password";
+    pw.value = "";
+  }
+});
+
+function unlock() {
+  if (unlocked || busy) return;
+  busy = true;
+  go.innerHTML = '<span class="spin"></span>';
+  setTimeout(() => { unlocked = true; busy = false; screen.classList.add("unlocked"); resetGo(); }, 650);
+}
+function lockScreen() {
+  closeWindow(win); closeWindow(about);
+  unlocked = false; manual = false; screen.classList.remove("unlocked");
+  uid.value = ""; pw.value = ""; hint.innerHTML = "&nbsp;";
+  scrollTo({ top: 0, behavior: "smooth" });
+}
+function resetGo() { go.innerHTML = '<svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h8M6.5 2.5 10 6 6.5 9.5"/></svg>'; }
+
+function frame() {
+  p = progress();
+  ps += (p - ps) * .1;
+  const t = ps;
+
+  // screensaver: the film full-bleed, then blurred and dimmed into the wallpaper
+  const wake = easeIO(span(t, .12, .36));
+  const av = Math.round(V.h * .17);
+  screen.style.setProperty("--av", av + "px");
+  screen.style.setProperty("--av-y", (V.h * .45 - av / 2) + "px");
+  const u0 = unlockT;
+  const blur = lerp(lerp(0, 26, wake), 14, u0), bright = lerp(lerp(1, .55, wake), .7, u0);
+  film.style.filter = blur > .2 ? `blur(${blur}px) brightness(${bright})` : "";
+  film.style.transform = `scale(${1 + wake * .12})`;
+  film.style.setProperty("--tint", wake);
+  const avIn = ease(span(t, .24, .36));
+  avatar.style.opacity = unlocked ? 0 : avIn;
+  avatar.style.transform = `scale(${.85 + .15 * avIn})`;
+  $("#spill").style.setProperty("--spill", unlocked ? .35 : .45 + .55 * wake);
+  const clockIn = ease(span(t, .18, .32));
+  clock.style.opacity = unlocked ? 0 : clockIn;
+  clock.style.transform = `translateY(${(1 - clockIn) * -24}px)`;
+  const whoIn = ease(span(t, .27, .40));
+  who.style.opacity = unlocked ? 0 : whoIn;
+  who.style.transform = `translateY(${(1 - whoIn) * 16}px)`;
+  $("#lock").classList.toggle("live", whoIn > .5 && !unlocked);
+  $("#hint").style.opacity = 1 - span(t, .02, .1);
+
+  // typing, driven by scroll until the visitor types themselves
+  if (!manual && !unlocked && !busy) {
+    uid.value = LOGIN.id.slice(0, Math.round(span(t, .44, .62) * LOGIN.id.length));
+    pw.value = LOGIN.pw.slice(0, Math.round(span(t, .64, .78) * LOGIN.pw.length));
+    go.classList.toggle("press", t > .82 && t < .88);
+    if (t >= .88 && p >= .9) unlock();
+  }
+  go.classList.toggle("ready", uid.value.length > 0 && pw.value.length > 0);
+  if (unlocked && !manual && p < .8) lockScreen();
+
+  // desktop in / out
+  unlockT += ((unlocked ? 1 : 0) - unlockT) * .09;
+  const u = unlockT;
+  desk.style.opacity = u;
+  $("#deskwall").style.opacity = u;
+  film.style.opacity = 1 - u;
+  menubar.style.transform = `translateY(${(1 - ease(span(u, .2, 1))) * -100}%)`;
+  $("#dock").style.setProperty("--dock-y", (1 - ease(span(u, .35, 1))) * 140 + "%");
+  [...icons.children].forEach((ic, i) => {
+    const k = ease(span(u, .3 + i * .12, .8 + i * .12));
+    ic.style.opacity = k;
+    ic.style.transform = `scale(${.6 + .4 * k})`;
+  });
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
