@@ -40,7 +40,10 @@ button, input { font: inherit; color: inherit; }
 
 /* the rendered desk scene, sized to cover the viewport */
 .laptop { position: absolute; left: 0; top: 0; width: var(--lw); height: var(--lh); transform: translate(var(--lx, 0px), var(--ly, 0px)); }
-.laptop > img { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; pointer-events: none; }
+.laptop > img { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%); mask-image: linear-gradient(to bottom, transparent 0, #000 9%); }
+.laptop.portrait > img { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 78%, transparent 100%); }
 
 /* ---------- the virtual display ---------- */
 .screen {
@@ -348,6 +351,8 @@ const desk = $("#desk"), menubar = $("#menubar"), icons = $("#icons");
 
 // ---------- screen geometry ----------
 let CORNERS = null;
+// The laptop's bounding box in the render, in image pixels (measured from macbook.webp).
+const LAPTOP_X = [864, 2348], LAPTOP_Y = [175, 1439];
 let V = { w: 1024, h: 662 };
 // Projective map from the unit square onto the quad (tl, tr, br, bl).
 function quad(w, h, [x0, y0], [x1, y1], [x2, y2], [x3, y3]) {
@@ -362,11 +367,13 @@ function layout() {
   if (!CORNERS) return;
   const [iw, ih] = CORNERS.image;
   const sw = (CORNERS.tr[0] - CORNERS.tl[0]) / iw;      // screen width as share of the image
-  const vw = innerWidth, vh = innerHeight;
+  // clientWidth leaves out the scrollbar, so the centre is the centre of what is seen
+  const vw = document.documentElement.clientWidth, vh = innerHeight;
   const portrait = vw < 720 && vh > vw;
   // The scene covers the viewport. Phones push in until the display fills the width.
-  let k = Math.max(vw / iw, vh / ih);
-  if (portrait) k = Math.max(k, (vw - 16) / (sw * iw));
+  // Phones size by the display alone (16px either side) and let the image fade out above and below.
+  let k = portrait ? (vw - 32) / (sw * iw) : Math.max(vw / iw, vh / ih);
+  laptop.classList.toggle("portrait", portrait);
   const lw = iw * k, lh = ih * k;
   laptop.style.setProperty("--lw", lw + "px");
   laptop.style.setProperty("--lh", lh + "px");
@@ -381,10 +388,12 @@ function layout() {
   const spill = $("#spill");
   const sx = CORNERS.bl[0] * k, sy = CORNERS.bl[1] * k, sw2 = (CORNERS.br[0] - CORNERS.bl[0]) * k;
   Object.assign(spill.style, { left: sx + "px", top: sy + "px", width: sw2 + "px", height: sw2 * .32 + "px" });
-  // Centre horizontally; on phones put the display a little above centre.
+  // Centre the laptop itself, not the image; on phones put the display a little above centre.
+  // Any gap left above the image is the page colour, which the image fades into.
   const cy = (CORNERS.tl[1] + CORNERS.bl[1]) / 2 * k;
-  const y = portrait ? clamp(vh * .44 - cy, vh - lh, 0) : (vh - lh) / 2;
-  laptop.style.setProperty("--lx", (vw - lw) / 2 + "px");
+  const laptopCy = (LAPTOP_Y[0] + LAPTOP_Y[1]) / 2 * k;
+  const y = portrait ? vh * .46 - laptopCy : Math.max(vh / 2 - laptopCy, vh - lh);
+  laptop.style.setProperty("--lx", vw / 2 - (LAPTOP_X[0] + LAPTOP_X[1]) / 2 * k + "px");
   laptop.style.setProperty("--ly", y + "px");
 }
 fetch("media/screen.json").then(r => r.json()).then(j => { CORNERS = j; layout(); });
