@@ -1,0 +1,77 @@
+{
+ "fps": 10,
+ "frames": 36,
+ "cols": 6,
+ "objects": {
+  "pebbles": {
+   "still": "clay-pebbles.webp",
+   "still_w": 1200,
+   "still_h": 1052,
+   "loop": "clay-pebbles-loop.webp",
+   "frame_w": 360,
+   "frame_h": 315,
+   "rows": 6,
+   "count": 36
+  },
+  "letter": {
+   "still": "clay-letter.webp",
+   "still_w": 1116,
+   "still_h": 1200,
+   "loop": "clay-letter-loop.webp",
+   "frame_w": 328,
+   "frame_h": 360,
+   "rows": 6,
+   "count": 36
+  },
+  "capsule": {
+   "still": "clay-capsule.webp",
+   "still_w": 1200,
+   "still_h": 935,
+   "loop": "clay-capsule-loop.webp",
+   "frame_w": 360,
+   "frame_h": 296,
+   "rows": 6,
+   "count": 36
+  },
+  "book": {
+   "still": "clay-book.webp",
+   "still_w": 1032,
+   "still_h": 1200,
+   "loop": "clay-book-loop.webp",
+   "frame_w": 302,
+   "frame_h": 360,
+   "rows": 6,
+   "count": 36
+  },
+  "head": {
+   "still": "clay-head.webp",
+   "still_w": 1200,
+   "still_h": 1055,
+   "loop": "clay-head-loop.webp",
+   "frame_w": 360,
+   "frame_h": 338,
+   "rows": 6,
+   "count": 36
+  },
+  "medallion": {
+   "still": "clay-medallion.webp",
+   "still_w": 1200,
+   "still_h": 1187,
+   "loop": "clay-medallion-loop.webp",
+   "frame_w": 356,
+   "frame_h": 360,
+   "rows": 6,
+   "count": 36
+  },
+  "gem": {
+   "still": "clay-gem.webp",
+   "still_w": 1200,
+   "still_h": 949,
+   "loop": "clay-gem-loop.webp",
+   "frame_w": 360,
+   "frame_h": 296,
+   "rows": 6,
+   "count": 36
+  }
+ }
+}
