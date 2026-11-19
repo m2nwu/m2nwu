@@ -10,7 +10,9 @@ window.WORK = {
   email: 'from2nwu@gmail.com',
   live: [
     { label: 'Médongaule identity site', href: 'https://m2nwu.github.io/imagearchive/identity/' },
-    { label: 'The Workshop, web game', href: 'https://workshop-game.conceptrotation.workers.dev' }
+    { label: 'The Workshop, web game', href: 'https://workshop-game.conceptrotation.workers.dev' },
+    { label: 'LUMIX+ brand site', href: 'https://m2nwu.github.io/lumix/' },
+    { label: 'Caustic Light', href: 'https://m2nwu.github.io/experiementstudies/caustic/' }
   ],
   order: ['punch', 'medongaule', 'lumix-plus', 'the-workshop', 'diablo-iv', 'caustic-light'],
   featured: [
