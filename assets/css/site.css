@@ -159,6 +159,7 @@ html.on-paper .hd { color: #161513; background: none; }
   font-family: var(--font-display); font-size: clamp(44px, 7.1vw, 136px); font-weight: 400;
   line-height: .98; letter-spacing: -.045em;
 }
+.open-mark { grid-column: 1 / -1; justify-self: center; display: block; font-family: var(--font-display); font-size: clamp(44px, 7.1vw, 136px); font-weight: 400; line-height: .98; letter-spacing: -.045em; margin-bottom: .32em; user-select: none; }
 .open-statement .hot { transition: color var(--dur-hover) var(--ease-ui); cursor: default; }
 .pair { display: inline-block; white-space: nowrap; }
 
@@ -186,6 +187,7 @@ html.on-paper .hd { color: #161513; background: none; }
 @media (max-width: 699px) {
   .open { min-height: 0; padding: calc(var(--header-h) + 34vw) 0 var(--s6); align-content: start; }
   .open-statement { grid-column: 1 / -1; font-size: clamp(38px, 11.4vw, 58px); line-height: 1; }
+  .open-mark { font-size: clamp(38px, 11.4vw, 58px); }
   .stage { font-size: clamp(42px, 13.6vw, 68px); }
   .float.book { top: -1.6em; left: auto; right: var(--margin); width: 1.05em; }
   .float.gem { top: -1.5em; right: auto; left: var(--margin); width: 1.15em; }
@@ -428,7 +430,7 @@ figcaption { margin-top: var(--s1); font-size: var(--fs-meta); line-height: 1.35
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --card-bg: #FAF8F3;
   --card-line: rgba(22, 21, 19, .07);
-  --r: 14px;          /* card radius */
+  --rad: 14px;        /* card radius (not --r: the clay sprites use --r for atlas rows) */
   --r-in: 8px;        /* media inside a card */
   --pad: 12px;        /* card inner padding */
   /* type scale, 1.25 steps from 16px body */
@@ -444,7 +446,7 @@ figcaption { margin-top: var(--s1); font-size: var(--fs-meta); line-height: 1.35
 
 /* the card */
 .tile, .ix-item {
-  background: var(--card-bg); border-radius: var(--r); padding: var(--pad);
+  background: var(--card-bg); border-radius: var(--rad); padding: var(--pad);
   box-shadow: inset 0 0 0 1px var(--card-line);
   transition: transform .5s var(--ease-media), box-shadow var(--dur-hover) var(--ease-ui);
 }
@@ -470,11 +472,11 @@ figcaption { margin-top: var(--s1); font-size: var(--fs-meta); line-height: 1.35
 .ix-item .c-yr { padding: 0 4px 2px; color: var(--ink); }
 
 /* about: the lead as one wide card */
-.about-lead { background: var(--card-bg); border-radius: var(--r); box-shadow: inset 0 0 0 1px var(--card-line); padding: var(--s4) var(--s4) var(--s5); }
+.about-lead { background: var(--card-bg); border-radius: var(--rad); box-shadow: inset 0 0 0 1px var(--card-line); padding: var(--s4) var(--s4) var(--s5); }
 
 /* case facts: small cards in a row */
 .cs-facts { column-gap: var(--gutter); }
-.cs-facts > div { background: var(--card-bg); border-radius: var(--r); box-shadow: inset 0 0 0 1px var(--card-line); padding: var(--s2) var(--s2) var(--s3); }
+.cs-facts > div { background: var(--card-bg); border-radius: var(--rad); box-shadow: inset 0 0 0 1px var(--card-line); padding: var(--s2) var(--s2) var(--s3); }
 .cs-facts dt { color: var(--ink); }
 
 @media (max-width: 1023px) {
