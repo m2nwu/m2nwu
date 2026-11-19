@@ -199,7 +199,7 @@
   /* -------------------------------------------------------- home render */
   function tileHTML(p) {
     var t = p.tile;
-    return '<article class="tile" style="--col:' + t.col + ';--ar:' + t.ar + ';--accent:' + p.accent + '" data-accent="' + p.accent + '">' +
+    return '<article class="tile' + (t.size ? ' t-' + t.size : '') + '" style="--col:' + t.col + ';--row:' + (t.row || 'auto') + ';--ar:' + t.ar + ';--accent:' + p.accent + '" data-accent="' + p.accent + '">' +
       '<div class="frame" data-reveal style="--ar:' + t.ar + '">' + videoTag(t.src, t.poster, t.alt) + '</div>' +
       '<div class="tile-cap"><h3 class="tile-title">' + esc(p.title) + '</h3>' +
       '<p class="tile-meta meta"><span></span><span>' + p.year + '</span></p></div>' +

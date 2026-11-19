@@ -22,7 +22,7 @@ window.WORK = {
       tags: ['Editorial', 'Color system', '3D motion'],
       purpose: 'A shelf of bar guides that reads like a palette, gathered into one red box.',
       role: 'Editorial system, color and icon system, logo, 3D film (scripted Blender)',
-      tile: { src: 'motion/punch/punch-thumb.mp4', poster: 'motion/punch/punch-thumb-poster.webp', alt: 'PUNCH film, shortened: eight guide books ring and riffle, fly into a red binder and the binder becomes the logo box', ar: '3 / 2', col: '1 / 7' },
+      tile: { src: 'motion/punch/punch-thumb.mp4', poster: 'motion/punch/punch-thumb-poster.webp', alt: 'PUNCH film, shortened: eight guide books ring and riffle, fly into a red binder and the binder becomes the logo box', ar: '3 / 2', col: '1 / 8', row: 'span 2', size: 'big' },
       hero: { src: 'motion/punch/punch-film.mp4', poster: 'motion/punch/punch-film-poster.webp', alt: 'PUNCH 3D film: eight guide books tumble in, riffle in a ring, fly into a red box binder, glass bar icons swirl around it, and the binder flattens into the PUNCH logo', video: true, ar: '16 / 9' },
       idea: 'A drinking guide to Manhattan in two series of four books, one per kind of bar. Each bar type owns one color and one icon, so a shelf of guides reads like a palette. In 2026 the color, icon and logo sheets were reworked and the whole guide was built in 3D.',
       chapters: [
@@ -68,7 +68,7 @@ window.WORK = {
       cover: { src: 'medongaule/aerial.webp', alt: 'Aerial view of the Médongaule pavilion among autumn maples', pos: '50% 45%' },
       second: { src: 'medongaule/social-feed-persimmon.webp', alt: 'Social post with persimmons on a branch in the Médongaule frame' },
       home: { layout: 'full', media: [{ src: 'medongaule/aerial.webp', alt: 'Aerial view of the Médongaule pavilion among autumn maples', pos: '50% 45%' }] },
-      tile: { src: 'motion/medongaule/medongaule-thumb.mp4', poster: 'motion/medongaule/medongaule-thumb-poster.webp', alt: 'Médongaule loop: the wordmark writes itself above the visiting hours, the 3D print set turns, and the camera descends into the 3D garden', ar: '3 / 2', col: '7 / 13' },
+      tile: { src: 'motion/medongaule/medongaule-thumb.mp4', poster: 'motion/medongaule/medongaule-thumb-poster.webp', alt: 'Médongaule loop: the wordmark writes itself above the visiting hours, the 3D print set turns, and the camera descends into the 3D garden', ar: '3 / 2', col: '8 / 13' },
       hero: { src: 'motion/medongaule/medongaule-thumb.mp4', poster: 'motion/medongaule/medongaule-thumb-poster.webp', alt: 'The Médongaule wordmark writing itself, the printed set in 3D, then a walk through the 3D garden', video: true, ar: '3 / 2' },
       idea: 'Médongaule is a humanities-architecture garden in Yangpyeong, Gyeonggi-do, where the beauty of the Korean garden meets French architecture, with a garden-to-table restaurant, Fati. The idea: let the garden write the name.',
       chapters: [
@@ -126,7 +126,7 @@ window.WORK = {
       home: { layout: 'half', media: [
         { src: 'lumix-plus/addons-cluster.webp', alt: 'The seven silicone add‑ons clustered around the LUMIX+ light', bg: '#08080A', ar: '1 / 1' },
         { src: 'lumix-plus/poster-02.webp', alt: 'LUMIX+ poster with the main light on black', ar: '1 / 1' }] },
-      tile: { src: 'motion/lumix-plus/lumix-plus-thumb.mp4', poster: 'motion/lumix-plus/lumix-plus-thumb-poster.webp', alt: 'The seven add-ons joining the LUMIX+ light in turn', ar: '3 / 2', col: '1 / 7' },
+      tile: { src: 'motion/lumix-plus/lumix-plus-thumb.mp4', poster: 'motion/lumix-plus/lumix-plus-thumb-poster.webp', alt: 'The seven add-ons joining the LUMIX+ light in turn', ar: '3 / 2', col: '8 / 13' },
       hero: { src: 'lumix-plus/film-teardown.webm', hevc: 'lumix-plus/film-teardown-hevc.mp4', poster: 'lumix-plus/film-teardown-poster.webp', alt: 'Product teardown: the light separating into its parts and closing again', video: true, alpha: true, ar: '16 / 9', pad: true },
       idea: 'A flashlight for people who travel consistently: one light that has to work in a hotel room, on a beach, in a tent. Three principles set the brief: modular and integrated, collectible and essential, adaptable and specialised.',
       chapters: [
@@ -196,7 +196,7 @@ window.WORK = {
       home: { layout: 'half', media: [
         { src: 'motion/the-workshop/the-workshop-3d-box.webp', alt: 'The Workshop box in 3D, a black lid with red, blue and purple shards and the title', ar: '1 / 1', fit: 'cover' },
         { src: 'the-workshop/game-table.webp', alt: 'Round table of the web game with gem cards in hand', ar: '1 / 1', fit: 'cover' }] },
-      tile: { src: 'motion/the-workshop/the-workshop-thumb.mp4', poster: 'motion/the-workshop/the-workshop-thumb-poster.webp', alt: 'The Workshop box in 3D: the lid lifts and the gem and FORGED decks are dealt from the tray into six face-up piles', ar: '3 / 2', col: '7 / 13' },
+      tile: { src: 'motion/the-workshop/the-workshop-thumb.mp4', poster: 'motion/the-workshop/the-workshop-thumb-poster.webp', alt: 'The Workshop box in 3D: the lid lifts and the gem and FORGED decks are dealt from the tray into six face-up piles', ar: '3 / 2', col: '1 / 5' },
       hero: { src: 'motion/the-workshop/the-workshop-thumb.mp4', poster: 'motion/the-workshop/the-workshop-thumb-poster.webp', alt: 'The Workshop box in 3D: the lid lifts and the gem and FORGED decks are dealt from the tray into six face-up piles', video: true, ar: '3 / 2' },
       idea: 'Gather, forge and be the last one standing. Six seats, one life each, 60 gem cards, 20 in each color. Three gems make a weapon.',
       chapters: [
@@ -238,7 +238,7 @@ window.WORK = {
       tags: ['Concept', 'Typeface', 'Packaging', '3D'],
       purpose: 'Diablo IV reimagined through a plush baby devil, a spiked typeface and a heap of red-and-black packaging.',
       role: 'Self-directed rebrand concept for the Young Ones Brief: mascot, custom typeface, packaging and print, 3D',
-      tile: { src: 'motion/diablo-iv/diababy-thumb.mp4', poster: 'motion/diablo-iv/diababy-thumb-poster.webp', alt: 'Diababy boxes, bags, guide books, cards and Baby Dia figures pouring onto the page, piling up and falling away', ar: '3 / 2', col: '1 / 7' },
+      tile: { src: 'motion/diablo-iv/diababy-thumb.mp4', poster: 'motion/diablo-iv/diababy-thumb-poster.webp', alt: 'Diababy boxes, bags, guide books, cards and Baby Dia figures pouring onto the page, piling up and falling away', ar: '3 / 2', col: '5 / 9' },
       hero: { live: 'pour', src: 'motion/diablo-iv/diababy-pour-still.webp', alt: 'A heap of Diababy packaging on the page: Give ’Em Hell and Baby Dia boxes, shopping bags, guide books, cards and Baby Dia figures, all printed with the real dielines', ar: '16 / 9' },
       idea: 'Made for the Young Ones Brief, which asks entrants to reinterpret newly introduced brands and products in their own visual language. Diababy is a self-directed rebrand of Diablo IV around a plush baby devil, with a custom typeface, two boxes, a shopping bag, a guide book and cards in signal red and black. Every element was made for the project, from concept to final artwork. At the top of this page the packaging falls in live, every face printed from its own dieline.',
       chapters: [
@@ -284,7 +284,7 @@ window.WORK = {
       purpose: 'Light refracted through a computed diamond-glass surface and cast into drawings, words and letters.',
       role: 'Concept, design and code (WebGL)',
       live: [{ label: 'Try it', href: 'https://m2nwu.github.io/experiementstudies/caustic/' }],
-      tile: { src: 'motion/caustic-light/caustic-light-thumb.mp4', poster: 'motion/caustic-light/caustic-light-thumb-poster.webp', alt: 'Drawing with light in Caustic Light: a mirrored stroke grows into a glowing six-fold form, then the words Caustic Type bend as the light moves', ar: '3 / 2', col: '7 / 13' },
+      tile: { src: 'motion/caustic-light/caustic-light-thumb.mp4', poster: 'motion/caustic-light/caustic-light-thumb-poster.webp', alt: 'Drawing with light in Caustic Light: a mirrored stroke grows into a glowing six-fold form, then the words Caustic Type bend as the light moves', ar: '3 / 2', col: '9 / 13' },
       hero: { src: 'motion/caustic-light/caustic-light-thumb.mp4', poster: 'motion/caustic-light/caustic-light-thumb-poster.webp', alt: 'Drawing with light in Caustic Light, then the words Caustic Type cast through the glass', video: true, ar: '3 / 2' },
       idea: 'A standalone light piece built from the Caustic type experiment. For every shape the page computes a glass surface whose refraction gathers light into it on a floor below, then sends rays through that surface on the GPU in three spectral bands. The pointer steers the glass and the sun: draw with light, write a word, or open the whole character set cast in light.',
       chapters: [
