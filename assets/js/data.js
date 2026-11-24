@@ -11,10 +11,9 @@ window.WORK = {
   live: [
     { label: 'Médongaule identity site', href: 'https://m2nwu.github.io/imagearchive/identity/' },
     { label: 'The Workshop, web game', href: 'https://workshop-game.conceptrotation.workers.dev' },
-    { label: 'LUMIX+ brand site', href: 'https://m2nwu.github.io/lumix/' },
-    { label: 'Caustic Light', href: 'https://m2nwu.github.io/experiementstudies/caustic/' }
+    { label: 'LUMIX+ brand site', href: 'https://m2nwu.github.io/lumix/' }
   ],
-  order: ['punch', 'medongaule', 'lumix-plus', 'the-workshop', 'diablo-iv', 'caustic-light'],
+  order: ['punch', 'medongaule', 'lumix-plus', 'the-workshop', 'diablo-iv'],
   featured: [
     {
       slug: 'punch',
@@ -24,7 +23,7 @@ window.WORK = {
       tags: ['Editorial', 'Color system', '3D motion'],
       purpose: 'A shelf of bar guides that reads like a palette, gathered into one red box.',
       role: 'Editorial system, color and icon system, logo, 3D film (scripted Blender)',
-      tile: { src: 'motion/punch/punch-thumb.mp4', poster: 'motion/punch/punch-thumb-poster.webp', alt: 'PUNCH film, shortened: eight guide books ring and riffle, fly into a red binder and the binder becomes the logo box', ar: '3 / 2', col: '1 / 8', row: 'span 2', size: 'big' },
+      tile: { src: 'motion/punch/punch-thumb.mp4', poster: 'motion/punch/punch-thumb-poster.webp', alt: 'PUNCH film: eight guide books ring and riffle, fly into a red binder, the binder lies down as the logo box and the PUNCH wordmark appears inside it', ar: '3 / 2', col: '1 / 8', row: 'span 2', size: 'big' },
       hero: { src: 'motion/punch/punch-film.mp4', poster: 'motion/punch/punch-film-poster.webp', alt: 'PUNCH 3D film: eight guide books tumble in, riffle in a ring, fly into a red box binder, glass bar icons swirl around it, and the binder flattens into the PUNCH logo', video: true, ar: '16 / 9' },
       idea: 'A drinking guide to Manhattan in two series of four books, one per kind of bar. Each bar type owns one color and one icon, so a shelf of guides reads like a palette. In 2026 the color, icon and logo sheets were reworked and the whole guide was built in 3D.',
       chapters: [
@@ -198,7 +197,7 @@ window.WORK = {
       home: { layout: 'half', media: [
         { src: 'motion/the-workshop/the-workshop-3d-box.webp', alt: 'The Workshop box in 3D, a black lid with red, blue and purple shards and the title', ar: '1 / 1', fit: 'cover' },
         { src: 'the-workshop/game-table.webp', alt: 'Round table of the web game with gem cards in hand', ar: '1 / 1', fit: 'cover' }] },
-      tile: { src: 'motion/the-workshop/the-workshop-thumb.mp4', poster: 'motion/the-workshop/the-workshop-thumb-poster.webp', alt: 'The Workshop box in 3D: the lid lifts and the gem and FORGED decks are dealt from the tray into six face-up piles', ar: '3 / 2', col: '1 / 5' },
+      tile: { src: 'motion/the-workshop/the-workshop-thumb.mp4', poster: 'motion/the-workshop/the-workshop-thumb-poster.webp', alt: 'The Workshop box in 3D: the lid lifts and the gem and FORGED decks are dealt from the tray into six face-up piles', ar: '3 / 2', col: '1 / 7' },
       hero: { src: 'motion/the-workshop/the-workshop-thumb.mp4', poster: 'motion/the-workshop/the-workshop-thumb-poster.webp', alt: 'The Workshop box in 3D: the lid lifts and the gem and FORGED decks are dealt from the tray into six face-up piles', video: true, ar: '3 / 2' },
       idea: 'Gather, forge and be the last one standing. Six seats, one life each, 60 gem cards, 20 in each color. Three gems make a weapon.',
       chapters: [
@@ -240,7 +239,7 @@ window.WORK = {
       tags: ['Concept', 'Typeface', 'Packaging', '3D'],
       purpose: 'Diablo IV reimagined through a plush baby devil, a spiked typeface and a heap of red-and-black packaging.',
       role: 'Self-directed rebrand concept for the Young Ones Brief: mascot, custom typeface, packaging and print, 3D',
-      tile: { src: 'motion/diablo-iv/diababy-thumb.mp4', poster: 'motion/diablo-iv/diababy-thumb-poster.webp', alt: 'Diababy boxes, bags, guide books, cards and Baby Dia figures pouring onto the page, piling up and falling away', ar: '3 / 2', col: '5 / 9' },
+      tile: { src: 'motion/diablo-iv/diababy-thumb.mp4', poster: 'motion/diablo-iv/diababy-thumb-poster.webp', alt: 'Diababy boxes, bags, guide books, cards and Baby Dia figures pouring onto the page, piling up and falling away', ar: '3 / 2', col: '7 / 13' },
       hero: { live: 'pour', src: 'motion/diablo-iv/diababy-pour-still.webp', alt: 'A heap of Diababy packaging on the page: Give ’Em Hell and Baby Dia boxes, shopping bags, guide books, cards and Baby Dia figures, all printed with the real dielines', ar: '16 / 9' },
       idea: 'Made for the Young Ones Brief, which asks entrants to reinterpret newly introduced brands and products in their own visual language. Diababy is a self-directed rebrand of Diablo IV around a plush baby devil, with a custom typeface, two boxes, a shopping bag, a guide book and cards in signal red and black. Every element was made for the project, from concept to final artwork. At the top of this page the packaging falls in live, every face printed from its own dieline.',
       chapters: [
@@ -274,26 +273,6 @@ window.WORK = {
           media: [
             { src: 'diablo-iv/set-2023-a.webp', alt: '2023 render: the two shopping bags, the standing Baby Dia, both boxes, the guide book and two stacks of cards', span: 'half' },
             { src: 'diablo-iv/set-2023-b.webp', alt: '2023 render: the set with the plush Baby Dia holding his trident and the DIABLO IV wordmark in 3D', span: 'half' }
-          ] }
-      ]
-    },
-    {
-      slug: 'caustic-light',
-      title: 'Caustic Light',
-      year: '2026',
-      accent: '#B8A6F0',
-      tags: ['Interactive', 'Type', 'WebGL'],
-      purpose: 'Light refracted through a computed diamond-glass surface and cast into drawings, words and letters.',
-      role: 'Concept, design and code (WebGL)',
-      live: [{ label: 'Try it', href: 'https://m2nwu.github.io/experiementstudies/caustic/' }],
-      tile: { src: 'motion/caustic-light/caustic-light-thumb.mp4', poster: 'motion/caustic-light/caustic-light-thumb-poster.webp', alt: 'Drawing with light in Caustic Light: a mirrored stroke grows into a glowing six-fold form, then the words Caustic Type bend as the light moves', ar: '3 / 2', col: '9 / 13' },
-      hero: { src: 'motion/caustic-light/caustic-light-thumb.mp4', poster: 'motion/caustic-light/caustic-light-thumb-poster.webp', alt: 'Drawing with light in Caustic Light, then the words Caustic Type cast through the glass', video: true, ar: '3 / 2' },
-      idea: 'A standalone light piece built from the Caustic type experiment. For every shape the page computes a glass surface whose refraction gathers light into it on a floor below, then sends rays through that surface on the GPU in three spectral bands. The pointer steers the glass and the sun: draw with light, write a word, or open the whole character set cast in light.',
-      chapters: [
-        { label: 'Word and glyphs', text: 'Type a word and it is cast through the glass; the specimen casts every glyph of the set the same way.',
-          media: [
-            { src: 'motion/caustic-light/caustic-light-word.webp', alt: 'The words Caustic Type cast in light through diamond glass, with weight and pane controls', span: 'half' },
-            { src: 'motion/caustic-light/caustic-light-glyphs.webp', alt: 'The glyph specimen: 214 characters, each cast in light', span: 'half' }
           ] }
       ]
     },
